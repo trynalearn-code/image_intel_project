@@ -10,29 +10,48 @@ extractor.py - שליפת EXIF מתמונות
 ראו docs/api_contract.md לפורמט המדויק של הפלט.
 
 """
-
+def dms_to_decimal(dms_tuple, ref):
+    degrees = float(dms_tuple[0])
+    minutes = float(dms_tuple[1])
+    seconds = float(dms_tuple[2])
+    decimal = degrees + minutes / 60 + seconds / 3600
+    if ref in [b'S', b'W', 'S', 'W']:
+        decimal = -decimal
+    return decimal
 
 def has_gps(data: dict):
-    pass
+    return "GPSInfo" in data
+
 
 
 def latitude(data: dict):
-    pass
-
+    try:
+        gps = data.get("GPSInfo")
+        if not gps:
+            return None
+        return dms_to_decimal(gps[2], gps[1])
+    except Exception as e:
+        return None
 
 def longitude(data: dict):
-    pass
+    try:
+        gps = data.get("GPSInfo")
+        if not gps or 3 not in gps or 4 not in gps:
+            return None
+        return dms_to_decimal(gps[4], gps[3])
+    except Exception as e:
+        return None
 
 def datatime(data: dict):
-    pass
+    return data["DateTimeOriginal"]
 
 
 def camera_make(data: dict):
-    pass
+    return data["Make"]
 
 
 def camera_model(data: dict):
-    pass
+    return data["Model"]
 
 
 def extract_metadata(image_path):
@@ -71,6 +90,7 @@ def extract_metadata(image_path):
         tag = TAGS.get(tag_id, tag_id)
         data[tag] = value
 
+
     # תיקון: הוסר print(data) שהיה כאן - הדפיס את כל ה-EXIF הגולמי על כל תמונה
 
     exif_dict = {
@@ -95,4 +115,7 @@ def extract_all(folder_path):
     Returns:
         list של dicts (כמו extract_metadata)
     """
-    pass
+    images=[]
+    for image in os.listdir(folder_path):
+        images.append(extract_metadata(os.path.join(folder_path,image)))
+    return images
