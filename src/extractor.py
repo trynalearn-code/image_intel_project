@@ -20,14 +20,14 @@ def dms_to_decimal(dms_tuple, ref):
     return decimal
 
 def has_gps(data: dict):
-    return "GPSInfo" in data
+    return "GPSInfo" in data and 1 in data and 2 in data and 3 in data and 4 in data
 
 
 
 def latitude(data: dict):
     try:
         gps = data.get("GPSInfo")
-        if not gps:
+        if not gps or 1 not in gps or 2 not in gps:
             return None
         return dms_to_decimal(gps[2], gps[1])
     except Exception as e:
