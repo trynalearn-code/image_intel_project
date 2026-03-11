@@ -1,4 +1,6 @@
 import math
+from json import JSONDecodeError
+
 import requests
 from geopy.geocoders import Nominatim
 from geopy.extra.rate_limiter import RateLimiter
@@ -72,11 +74,14 @@ def detect_geographical_concentration(images_data):
                 }
 
                 response = requests.get(url, params=params, headers=headers)
-                data = response.json()
+                try:
+                    data = response.json()
 
-                concentrations[data["address"].get("city")] = concentrations.get(data["address"].get("city"), set())
-                concentrations[data["address"].get("city")].add(images_data[i]["filename"])
-                concentrations[data["address"].get("city")].add(images_data[j+i]["filename"])
+                    concentrations[data["address"].get("city")] = concentrations.get(data["address"].get("city"), set())
+                    concentrations[data["address"].get("city")].add(images_data[i]["filename"])
+                    concentrations[data["address"].get("city")].add(images_data[j+i]["filename"])
+                except JSONDecodeError:
+                    print(response.status_code)
     return concentrations
 
 def time_gaps(images_data):
@@ -84,11 +89,11 @@ def time_gaps(images_data):
     sorted_images = sorted(filtered_images, key=lambda image: image["datetime"])
     gaps = []
     for i in range(1, len(sorted_images)):
-        if images_data[i] is images_data[i-1]:
+        if sorted_images[i] is sorted_images[i-1]:
             continue
 
-        perv_image = images_data[i-1]
-        curr_image = images_data[i]
+        perv_image = sorted_images[i-1]
+        curr_image = sorted_images[i]
 
         date1 = perv_image["datetime"].split(" ")[0]
         date2 = curr_image["datetime"].split(" ")[0]

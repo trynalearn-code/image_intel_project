@@ -16,7 +16,7 @@ from extractor import *
 import folium
 
 
-COLORS = ['pink', 'lightred', 'white', 'lightgray', 'blue', 'lightgreen', 'purple', 'darkgreen', 'red', 'darkblue', 'darkred', 'black', 'cadetblue', 'orange', 'darkpurple', 'beige', 'green', 'lightblue', 'gray']
+COLORS = ['pink', 'lightred', 'lightgray', 'blue', 'lightgreen', 'purple', 'darkgreen', 'red', 'darkblue', 'darkred', 'black', 'cadetblue', 'orange', 'darkpurple', 'beige', 'green', 'lightblue', 'gray']
 
 def sort_by_time(arr):
     return sorted(arr, key=lambda img: img["datetime"])
@@ -53,7 +53,7 @@ def create_map(images_data):
         folium.Marker(
             location=[img["latitude"], img["longitude"]],
             popup=f"{img['filename']}<br>{img['datetime']}<br>{img['camera_model']}",
-            icon=folium.Icon(color=camera_colors[img["camera_model"]])
+            icon=folium.Icon(color=camera_colors[img["camera_model"]],icon="camera")
         ).add_to(m)
 
     points = [(img["latitude"], img["longitude"]) for img in gps_images]
