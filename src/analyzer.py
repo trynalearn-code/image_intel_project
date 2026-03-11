@@ -15,6 +15,8 @@ def unique_cameras(images_data):
 
 def date_range(image_data):
     dates = [image["datetime"] for image in image_data if image["datetime"]]
+    if not dates:
+        return ""
     start = "-".join(sorted(dates)[0].split(" ")[0].split(":"))
     end = "-".join(sorted(dates)[-1].split(" ")[0].split(":"))
     return {"start": start, "end": end}
@@ -229,6 +231,6 @@ def analyze(images_data: list[dict]) -> dict:
         "unique_cameras": unique_cameras(images_data),
         "date_range": date_range(images_data),
         "insights": [
-            f"נמצאו {len(unique_cameras(images_data))} מכשירים שונים"
+            f"נמצאו {len(unique_cameras(images_data))} מכשירים שונים" if len(unique_cameras(images_data)) > 1 else  "נמצא מחזיר 1" if len(unique_cameras(images_data)) == 1 else "לא נמצאו מכשירים"
         ] + camera_switches_insights + geographical_concentration_insights + time_gaps_insights + return_to_location_insights
     }

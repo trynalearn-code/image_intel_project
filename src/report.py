@@ -116,9 +116,8 @@ if __name__ == "__main__":
             "has_gps": False
         }
     ]
-    data = extract_all("C:\\Users\\user\\PyCharmMiscProject\\image_intel_project\\images\\ready")
-    html = create_report(fake_data, create_map(fake_data), create_timeline(fake_data), analyze(fake_data))
+    data = extract_all("C:\\Users\\user\\PyCharmMiscProject\\image_intel_project\\images\\sample_data")
+    html = create_report(data, create_map(data), create_timeline(data), analyze(data))
     with open("test_report.html", "w", encoding="utf-8") as f:
         f.write(html)
-    print("Map saved to test_map.html")
-
+print("Created report")
