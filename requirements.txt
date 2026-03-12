@@ -3,3 +3,6 @@ Pillow
 piexif
 folium
 matplotlib
+
+requests
+geopy
