@@ -12,18 +12,35 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
-    """מקבל נתיב תיקייה, מריץ את כל המודולים, מחזיר דו"ח"""
+    # """מקבל נתיב תיקייה, מריץ את כל המודולים, מחזיר דו"ח"""
+    #
+    # folder_path = request.form.get('folder_path')
+    #
+    # # בדיקה שהנתיב קיים
+    # if not folder_path:
+    #     return "לא הוזן נתיב לתיקייה", 400
+    #
+    # folder_path = os.path.abspath(folder_path)
+    #
+    # if not os.path.isdir(folder_path):
+    #     return "תיקייה לא נמצאה", 400
+    photos = request.files.getlist('photos')
+    print(photos)
 
-    folder_path = request.form.get('folder_path')
+    folder_path = tempfile.mkdtemp()
+    for photo in photos:
+        path = os.path.join(folder_path, photo.filename)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        photo.save(path)
 
     # בדיקה שהנתיב קיים
     if not folder_path:
-        return "לא הוזן נתיב לתיקייה", 400
+        return "לא הוזנו תמונות", 400
 
     folder_path = os.path.abspath(folder_path)
 
     if not os.path.isdir(folder_path):
-        return "תיקייה לא נמצאה", 400
+        return "התמונות לא נמצאו", 400
 
     try:
 
