@@ -1,9 +1,6 @@
+from flask import Flask, render_template, request
 import os
 import tempfile
-from io import BytesIO
-
-from flask import Flask, render_template, request, Response
-from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
 
@@ -16,9 +13,20 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze_images():
-    """מקבל נתיבים לתמונות, מריץ את כל המודולים, מחזיר דו"ח"""
-
+    # """מקבל נתיב תיקייה, מריץ את כל המודולים, מחזיר דו"ח"""
+    #
+    # folder_path = request.form.get('folder_path')
+    #
+    # # בדיקה שהנתיב קיים
+    # if not folder_path:
+    #     return "לא הוזן נתיב לתיקייה", 400
+    #
+    # folder_path = os.path.abspath(folder_path)
+    #
+    # if not os.path.isdir(folder_path):
+    #     return "תיקייה לא נמצאה", 400
     photos = request.files.getlist('photos')
+    print(photos)
 
     folder_path = tempfile.mkdtemp()
     for photo in photos:
@@ -60,69 +68,12 @@ def analyze_images():
         from report import create_report
         report_html = create_report(images_data, map_html, timeline_html, analysis)
 
-        style = """
-        <style>
-        .download-btn {
-            background-color: #38bdf8;
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .download-btn:hover {
-            background-color: 0284c7;
-            color: white;
-            box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
-        }
-        </style>
-        """
-
-        report_html = report_html.replace("</head>", style + "</head>")
-
-        button = """
-        <form action="/download" method="GET">
-            <button type="submit" class="download-btn">הורד PDF</button>
-        </form>
-        """
-
-        report_html = report_html.replace('<div style="text-align:center; color:#888; margin-top:30px;">', button + '<div style="text-align:center; color:#888; margin-top:30px;">')
-        print(report_html)
-
         return report_html
 
     except Exception as e:
         print("ERROR:", e)
         return f"שגיאה במהלך הניתוח: {str(e)}", 500
 
-def fake_generate_pdf():
-    buffer = BytesIO()
-
-    c = canvas.Canvas(buffer)
-    c.drawString(100, 750, "Hello PDF")
-    c.save()
-
-    buffer.seek(0)
-    return buffer.read()
-
-@app.route('/download')
-def download_pdf():
-    pdf_data = fake_generate_pdf()
-
-    return Response(
-        pdf_data,
-        mimetype="application/pdf",
-        headers={
-            "Content-Disposition": "attachment; filename=report.pdf"
-        }
-    )
 
 if __name__ == '__main__':
     print("Image Intel server running...")
